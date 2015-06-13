@@ -1,0 +1,12 @@
+*~
+*#*
+
+# CABAL
+/dist
+/cabal-dev
+/.cabal-sandbox
+/cabal.sandbox.config
+/.hpc
+TAGS
+*.tmp
+*.swp
