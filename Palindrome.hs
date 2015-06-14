@@ -1,7 +1,5 @@
 module Palindrome where
 
-import Control.Monad (ap) -- Control.Monad ap, you complete me. (Palindrome?)
-
 --
 -- Some useful palindromes ...
 
@@ -83,11 +81,12 @@ pal4 =
 
 -- It's time to go completely silly .. for just a bit!
 --
--- 1. Consider for a moment a function 'ap', which lifts function application.
--- Q: What is the type signature of 'ap' ?
+-- 1. Consider for a moment a function (<*>) (which we'll call "sequential
+-- application").
+-- Q: What is the type signature of the '<*>' function?
 --
--- :t ap
--- ap :: Monad m => m (a -> b) -> m a -> m b
+-- :t (<*>)
+-- (<*>) :: Applicative f => f (a -> b) -> f a -> f b
 --
 -- YIKES!
 --
@@ -102,40 +101,41 @@ pal4 =
 -- This makes sense, right? --> '==' takes an a, and another a, and gives a Bool.
 --
 --
--- 3. I wonder what happens if we try to "plug together" 'ap' and '==' ?
+-- 3. I wonder what happens if we try to "plug together" '<*>' and '==' ?
 -- Q: Does this work? How would we know? ==> Use the types !
 --
--- :t ap (==)
--- ap (==) :: Eq a => (a -> a) -> a -> Bool
---                    ^^^^^^^^   ^^^  ^^^^^
+-- :t (<*>) (==)
+-- (<*>) (==) :: Eq a => (a -> a) -> a -> Bool
+--                       ^^^^^^^^   ^^^   ^^^^
 --
--- WOW .. yes it does work ... But what does all this mean?
--- Hmm ... something that takes a function (a -> a), and a thing (a), and gives a Bool.
-----
+-- Okay .. yes it does work ... But what does all this mean?
+-- No we have something that takes a function (a -> a), and a thing (a), and
+-- gives a Bool.
+--
 -- Recall that the function reverse :: [a] -> [a] (or [Char] -> [Char] when applied)
--- to a [Char] ... This might be useful!
+-- to a [Char] ... Hmm ... this might be useful!
 --
 --
--- 4. So, what happens when we "plug together" 'ap', '==' and the 'reverse' function?
+-- 4. So, what happens when we "plug together" '<*>', '==' and the 'reverse' function?
 -- Q: What is the type signature that results?
 --
--- :t ap (==) reverse
--- ap (==) reverse :: Eq a => [a] -> Bool
---                            ^^^^^^^^^^^
+-- :t (<*>) (==) reverse
+-- (<*>) (==) reverse :: Eq a => [a] -> Bool
+--                               ^^^^^^^^^^^
 --
 -- Now _this_ looks promising .. We have a (partially applied) function that takes
 -- an [a] (a list of something), and returns a Bool .. Um, [Char] -> Bool, perhaps?
 --
--- We may now have everything we need .. How did we get here? By following the types!
+-- We now have everything we need .. How did we get here? By following the types!
 -- (... and some Hoogling!)
 
 pal5 :: String -> Bool
 pal5 =
-  \s -> ap (==) reverse s
+  \s -> (<*>) (==) reverse s
 
 
 --
--- Note that another effect of using 'ap' to define the function is that we're
+-- Note that another effect of using '<*>' to define the function is that we're
 -- now down to a single occurance of 's' in the function definition!
 -- (All prior definitions had two, appearing on both sides of the (==) fn!)
 --
@@ -146,7 +146,7 @@ pal5 =
 -- of other functions, with no explicit reference to the arguments being passed.
 
 pal6 :: String -> Bool
-pal6 = ap (==) reverse
+pal6 = (==) <*> reverse   -- we've moved <*> to infix position
 
 
 --
@@ -195,7 +195,7 @@ owl' f g h k = f g (h k)
 
 
 
--- Of course, this now brings us to one final definition of our now favourite
+-- Of course, this now brings us to one final definition of our favourite
 -- function, courtesy of the owl!
 
 pal7 :: String -> Bool
